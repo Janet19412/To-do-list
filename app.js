@@ -41,7 +41,7 @@ const defaultItems = [item1, item2, item3];
 const listSchema = {
   name: String,
   items: [itemsSchema]
-}
+};
 
 const List = mongoose.model("List",listSchema);
 
@@ -72,7 +72,7 @@ app.post("/", function(req, res) {
   const item = new Item({
     name: itemName
   });
-
+// 这么做是因为在express parameter的页面输入item的时候，会自动跳转到/页面，所以要进行处理
   if (listName === "Today") {
     item.save();
     res.redirect("/");
@@ -98,6 +98,7 @@ app.post("/delete",function(req,res){
       }
     });
   } else {
+    // mongoose findOneAndUpdate 可以pull array elements,有了条件限制，对不同的route呈现的结果都会是不同的
     List.findOneAndUpdate({name: listName},{$pull: {items:{_id: checkedItemId}}},function(err,foundList){
       if (!err) {
         res.redirect("/" + listName);
@@ -107,6 +108,7 @@ app.post("/delete",function(req,res){
 
 });
 
+// express route parameters: it allows us to create dynamic routes
 app.get("/:customListName",function(req,res){
   const customListName = _.capitalize(req.params.customListName);
 
@@ -137,6 +139,7 @@ let port = process.env.PORT;
 if (port == null || port == "") {
   port = 3000;
 }
+
 app.listen(port,function(){
   console.log("Server has started successfully.");
 });
